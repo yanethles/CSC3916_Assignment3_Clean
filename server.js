@@ -2,11 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const authJwtController = require('./auth_jwt'); // You're not using authController, consider removing it
+const authJwtController = require('./auth_jwt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const User = require('./Users');
-const Movie = require('./Movies'); // You're not using Movie, consider removing it
+const Movie = require('./Movies'); 
+const Review = require('./Reviews');
+const mongoose = require('mongoose');
 
 const app = express();
 app.use(cors());
@@ -17,7 +19,75 @@ app.use(passport.initialize());
 
 const router = express.Router();
 
+router.route('/movies/title/:title')
+
 // Removed getJSONObjectForMovieRequirement as it's not used
+router.get('/movies/:id', authJwtController.isAuthenticated, async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    if (req.query.reviews === 'true') {
+      const result = await Movie.aggregate([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(id) }
+        },
+        {
+          $lookup: {
+            from: 'reviews',
+            localField: '_id',
+            foreignField: 'movieId',
+            as: 'reviews'
+          }
+        }
+      ]);
+
+      if (!result || result.length === 0) {
+        return res.status(404).json({ message: 'Movie not found' });
+      }
+
+      return res.status(200).json(result[0]);
+    }
+
+    const movie = await Movie.findById(id);
+
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    res.status(200).json(movie);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/reviews', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const { movieId, username, review, rating } = req.body;
+
+    // check if movie exists
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    // create review
+    const newReview = new Review({
+      movieId,
+      username,
+      review,
+      rating
+    });
+
+    await newReview.save();
+
+    res.status(201).json({ message: 'Review created!' });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 router.post('/signup', async (req, res) => { // Use async/await
   if (!req.body.username || !req.body.password) {
@@ -31,7 +101,7 @@ router.post('/signup', async (req, res) => { // Use async/await
       password: req.body.password,
     });
 
-    await user.save(); // Use await with user.save()
+    await user.save(); 
 
     res.status(201).json({ success: true, msg: 'Successfully created new user.' }); // 201 Created
   } catch (err) {
