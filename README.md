@@ -72,11 +72,11 @@ Create a collection in MongoDB to hold information about movies
 - https://render.com/docs/deploy-create-react-app **important: Environment Variable for https://github.com/AliceNN-ucdenver/CSC3916_REACT env.REACT_APP_API_URL, this weekend I will look at changes (I believe only 1 change in the actions)
 
 ## Links
-Backend GitHub Repo: https://github.com/yanethles/CSC3916_Assignment3
+Backend GitHub Repo: https://github.com/yanethles/CSC3916_Assignment3_Clean
 
 React GitHub Repo: https://github.com/yanethles/CSC3916_REACT
 
-Backend Render URL: https://csc3916-assignment3-fqgi.onrender.com
+Backend Render URL: https://csc3916-assignment3-clean.onrender.com
 
 React Site URL: https://csc3916-react-pby9.onrender.com
 
