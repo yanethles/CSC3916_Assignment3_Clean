@@ -2,18 +2,6 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.DB);
-    console.log("Connected to MongoDB");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
-  }
-};
-
-connectDB();
-
 const MovieSchema = new Schema({
   title: { type: String, required: true, index: true },
   releaseDate: {
